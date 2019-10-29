@@ -1,0 +1,1873 @@
+AWSTemplateFormatVersion: '2010-09-09' 
+Transform: AWS::Serverless-2016-10-31 
+Description: An AWS batch realted template 
+Parameters: 
+  Lifecycle: 
+    Type: String 
+  Account: 
+    Type: String 
+  ApplicationName: 
+    Type: String 
+  ApplicationShortName: 
+    Type: String 
+  AppCode: 
+    Type: String 
+  CostCenter: 
+    Type: String 
+  AssetID: 
+    Type: String 
+  SubnetIds: 
+    Type: List<String> 
+  SecurityGroupIds: 
+    Type: List<String>  
+  MstrSubnetIds: 
+    Type: List<String> 
+  MstrSecurityGroupIds: 
+    Type: List<String>  
+  EnvCd: 
+    Type: String 
+  EnvShortCd:
+    Type: String
+  EnvNo: 
+    Type: String 
+  JobQueueName: 
+    Type: String 
+  ImageName: 
+    Type: String 
+  SasImageName: 
+    Type: String 
+  CMDSENDPOINT: 
+    Type: String 
+  CMDSPORT: 
+    Type: String 
+  CMDSDATABASE:  
+    Type: String   
+  PamEnvCd: 
+    Type: String 
+  CMDSSCHEMA: 
+    Type: String 
+  hostname:
+    Type: String
+Resources: 
+   
+  MrpDeadLetterQueue: 
+    Type: AWS::SQS::Queue 
+    Properties: 
+        MessageRetentionPeriod: 604800  
+        QueueName: !Sub 'fre01-mrpdata-dead-letter-queue-${EnvCd}_${EnvNo}' 
+        Tags: 
+           -   Key: AppCode 
+               Value: !Ref AppCode 
+           -   Key: ApplicationName 
+               Value: !Ref ApplicationName 
+           -   Key: CostCenter 
+               Value: !Ref CostCenter 
+           -   Key: Environment 
+               Value: !Sub '${EnvCd}_${EnvNo}' 
+           -   Key: AssetID 
+               Value: !Ref AssetID 
+           -   Key: ApplicationShortName 
+               Value: !Ref ApplicationShortName 
+        VisibilityTimeout: 900 
+         
+  MrpInboundQueue: 
+    Type: AWS::SQS::Queue 
+    Properties: 
+        MessageRetentionPeriod: 604800  
+        QueueName: !Sub 'fre01-mrpdata-inbound-queue-${EnvCd}_${EnvNo}' 
+        RedrivePolicy: 
+            deadLetterTargetArn: !GetAtt MrpDeadLetterQueue.Arn 
+            maxReceiveCount: 2 
+        Tags: 
+           -   Key: AppCode 
+               Value: !Ref AppCode 
+           -   Key: ApplicationName 
+               Value: !Ref ApplicationName 
+           -   Key: CostCenter 
+               Value: !Ref CostCenter 
+           -   Key: Environment 
+               Value: !Sub '${EnvCd}_${EnvNo}' 
+           -   Key: AssetID 
+               Value: !Ref AssetID 
+           -   Key: ApplicationShortName 
+               Value: !Ref ApplicationShortName 
+        VisibilityTimeout: 900 
+         
+  MrpInternalQueue: 
+    Type: AWS::SQS::Queue 
+    Properties: 
+        MessageRetentionPeriod: 604800  
+        QueueName: !Sub 'fre01-mrpdata-internal-queue-${EnvCd}_${EnvNo}' 
+        RedrivePolicy: 
+            deadLetterTargetArn: !GetAtt MrpDeadLetterQueue.Arn 
+            maxReceiveCount: 2 
+        Tags: 
+           -   Key: AppCode 
+               Value: !Ref AppCode 
+           -   Key: ApplicationName 
+               Value: !Ref ApplicationName 
+           -   Key: CostCenter 
+               Value: !Ref CostCenter 
+           -   Key: Environment 
+               Value: !Sub '${EnvCd}_${EnvNo}' 
+           -   Key: AssetID 
+               Value: !Ref AssetID 
+           -   Key: ApplicationShortName 
+               Value: !Ref ApplicationShortName 
+        VisibilityTimeout: 900 
+ 
+  MrpOutboundQueue: 
+    Type: AWS::SQS::Queue 
+    Properties: 
+        MessageRetentionPeriod: 604800  
+        QueueName: !Sub 'fre01-mrpdata-outbound-queue-${EnvCd}_${EnvNo}' 
+        RedrivePolicy: 
+            deadLetterTargetArn: !GetAtt MrpDeadLetterQueue.Arn 
+            maxReceiveCount: 2 
+        Tags: 
+           -   Key: AppCode 
+               Value: !Ref AppCode 
+           -   Key: ApplicationName 
+               Value: !Ref ApplicationName 
+           -   Key: CostCenter 
+               Value: !Ref CostCenter 
+           -   Key: Environment 
+               Value: !Sub '${EnvCd}_${EnvNo}' 
+           -   Key: AssetID 
+               Value: !Ref AssetID 
+           -   Key: ApplicationShortName 
+               Value: !Ref ApplicationShortName 
+        VisibilityTimeout: 900 
+ 
+  MRPDataJobDefinitionThirty: 
+    Type: AWS::Batch::JobDefinition 
+    Properties: 
+      Type: container 
+      JobDefinitionName:  !Sub  'fre01-${EnvCd}-edl-app-mrpdata-common-30-${EnvCd}_${EnvNo}' 
+      ContainerProperties: 
+            Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ImageName} 
+            MountPoints: 
+               - ReadOnly: false 
+                 SourceVolume: data 
+                 ContainerPath: /data 
+            Volumes: 
+               - Host: 
+                   SourcePath: "" 
+                 Name: "data" 
+            Command:  
+                - "echo Namaste" 
+            JobRoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'      
+            Memory: 1000 
+            Vcpus: 1 
+            Ulimits: 
+                - HardLimit: 64000 
+                  Name: "nofile" 
+                  SoftLimit: 2048 
+      RetryStrategy: 
+          Attempts: 1 
+      Timeout: 
+          AttemptDurationSeconds: 1800  
+           
+  MRPDataJobDefinitionSixty: 
+    Type: AWS::Batch::JobDefinition 
+    Properties: 
+      Type: container 
+      JobDefinitionName:  !Sub  'fre01-${EnvCd}-edl-app-mrpdata-common-60-${EnvCd}_${EnvNo}' 
+      ContainerProperties: 
+        Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ImageName} 
+        MountPoints: 
+            - ReadOnly: false 
+              SourceVolume: data 
+              ContainerPath: /data 
+        Volumes: 
+            - Host: 
+                SourcePath: "" 
+              Name: "data" 
+        Command:  
+            - "echo Namaste" 
+        JobRoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'      
+        Memory: 1000 
+        Vcpus: 1     
+      RetryStrategy: 
+          Attempts: 1 
+      Timeout: 
+          AttemptDurationSeconds: 3600  
+   
+  MRPDataJobDefinitionNinty: 
+    Type: AWS::Batch::JobDefinition 
+    Properties: 
+      Type: container 
+      JobDefinitionName:  !Sub  'fre01-${EnvCd}-edl-app-mrpdata-common-90-${EnvCd}_${EnvNo}' 
+      ContainerProperties: 
+        Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${ImageName} 
+        MountPoints: 
+            - ReadOnly: false 
+              SourceVolume: data 
+              ContainerPath: /data 
+        Volumes: 
+            - Host: 
+                 SourcePath: "" 
+              Name: "data" 
+        Command:  
+            - "echo Namaste" 
+        JobRoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'      
+        Memory: 1000 
+        Vcpus: 1     
+      RetryStrategy: 
+          Attempts: 1 
+      Timeout: 
+          AttemptDurationSeconds: 5400
+
+  SASCommonDefinition: 
+    Type: AWS::Batch::JobDefinition 
+    Properties: 
+      Type: container 
+      JobDefinitionName:  !Sub 'fre01-${EnvCd}-edl-usr-sas-batch-${EnvNo}' 
+      ContainerProperties:
+        Image: !Sub ${AWS::AccountId}.dkr.ecr.${AWS::Region}.amazonaws.com/${SasImageName} 
+        MountPoints: 
+            - ReadOnly: false 
+              SourceVolume: data 
+              ContainerPath: /data 
+        Volumes: 
+            - Host: 
+                 SourcePath: "" 
+              Name: "data" 
+        Command:  
+            - !Sub "s3://fnma-fre01-${EnvCd}-edl-us-east-1-edl/config/app/mrpdata/${EnvCd}_${EnvNo}/scripts/sas/sas_execute_script.sh"
+        JobRoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-analyst-edl'
+        Memory: 1000
+        Vcpus: 1
+        Environment:
+            - Name: MODE
+              Value: SAS_SCRIPT
+            - Name: SAS_SCRIPT_FOLDER
+              Value: !Sub s3://fnma-fre01-${EnvCd}-edl-us-east-1-edl/home/user/xxxxxx/xxx
+            - Name: SAS_SCRIPT_FILENAME
+              Value: x.sas
+            - Name: SAS_SCRIPT_PARAMETERS
+              Value: -set xxx xxxx -set xx x
+      RetryStrategy:
+        Attempts: 1
+
+  primaWorkflow: 
+    Type: "AWS::StepFunctions::StateMachine" 
+    Properties: 
+      StateMachineName: !Sub '${ApplicationShortName}-mrpdata-prima-event-workflow-${EnvCd}_${EnvNo}' 
+      RoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'  
+      DefinitionString:  
+        !Sub  
+            - |-       
+              { 
+                "Comment": "Job orchestration for PRIMA valuation and epl events (PVR, KRD, PNL, EPL)", 
+                "TimeoutSeconds": 12000, 
+                "StartAt": "Log-JobStart-Event", 
+                "States":  
+                    { 
+                        "Log-JobStart-Event": { 
+                            "Type": "Task", 
+                            "Resource": "${valuationJobStartArn}",
+                            "ResultPath":"$.JobStartResult",                            
+                            "Next": "Submit-Batch-Job" 
+                        }, 
+                        "Submit-Batch-Job": { 
+                            "Type": "Task", 
+                            "Resource": "arn:aws:states:::batch:submitJob.sync", 
+                            "Parameters": { 
+                                "JobName.$": "$.configData.jobName", 
+                                "JobQueue.$": "$.configData.jobQueue", 
+                                "JobDefinition.$": "$.configData.jobDefinition", 
+                                "Parameters.$": "$.configData.jobparameters", 
+                                "ContainerOverrides.$": "$.configData.ContainerOverrides", 
+                                "RetryStrategy": { 
+                                    "Attempts.$": "$.configData.attempts" 
+                                } 
+                            }, 
+                            "InputPath":"$", 
+                            "ResultPath":"$.batchResult", 
+                            "Next": "Log-JobSuccess-Event", 
+                            "Catch": [ 
+                            { 
+                                "ErrorEquals": [ "States.ALL" ], 
+                                "Next": "Log-JobFailed-Event" 
+                            } 
+                        ] 
+                        }, 
+                        "Log-JobSuccess-Event": { 
+                            "Type": "Task", 
+                            "Resource": "${logJobSuccessEventArn}",  
+                            "ResultPath":"$.logupdate", 
+                            "End": true 
+                        } , 
+                        "Log-JobFailed-Event": { 
+                            "Type": "Task", 
+                            "Resource": "${logJobFailEventArn}",  
+                            "Next": "FailedState"    
+                        }, 
+                        "FailedState": { 
+                            "Type": "Fail", 
+                            "Error": "Step is failed with return code -1 ", 
+                            "Cause": "Job Failed!" 
+                        }                     
+                    } 
+               } 
+            - { 
+                valuationJobStartArn : !GetAtt valuationJobStart.Arn , 
+                logJobSuccessEventArn: !GetAtt  logJobSuccessEvent.Arn, 
+                logJobFailEventArn: !GetAtt logJobFailEvent.Arn 
+               } 
+ 
+  commonWorkflow: 
+    Type: "AWS::StepFunctions::StateMachine" 
+    Properties: 
+      StateMachineName: !Sub '${ApplicationShortName}-mrpdata-common-wf-${EnvCd}_${EnvNo}' 
+      RoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'  
+      DefinitionString:  
+        !Sub  
+            - |-       
+                  { 
+                    "Comment": "Common Job orchestration MRPDATA Events", 
+                    "TimeoutSeconds": 43200, 
+                    "StartAt": "Log-JobStart-Event", 
+                    "States":  
+                    { 
+                            "Log-JobStart-Event": { 
+                                "Type": "Task", 
+                                "Resource": "${commonJobStartArn}", 
+                                "ResultPath":"$",
+                                "Next": "All conditions met?"
+                            },
+                            "All conditions met?": {
+                                 
+                                "Type": "Choice",
+                                "Choices": [
+                                {
+                                   "Variable": "$.status",
+                                   "BooleanEquals": true,
+                                   "Next": "Submit-Batch-Job"
+                                }
+                                ],
+                                "Default": "WaitAndLoop"
+                            },
+                            "WaitAndLoop": {
+                                "Type": "Wait",
+                                "Seconds": 120,
+                                "Next": "Log-JobStart-Event"
+                                },                            
+                            "Submit-Batch-Job": {    
+                                "Type": "Task", 
+                                "Resource": "arn:aws:states:::batch:submitJob.sync", 
+                                "Parameters": { 
+                                    "JobName.$": "$.configData.jobName", 
+                                    "JobQueue.$": "$.configData.jobQueue", 
+                                    "JobDefinition.$": "$.configData.jobDefinition", 
+                                    "Parameters.$": "$.configData.jobparameters", 
+                                    "ContainerOverrides.$": "$.configData.ContainerOverrides", 
+                                    "RetryStrategy": { 
+                                        "Attempts.$": "$.configData.attempts" 
+                                    } 
+                                }, 
+                                "InputPath":"$", 
+                                "ResultPath":"$.batchResult", 
+                                "Next": "Log-JobSuccess-Event", 
+                                "Catch": [ 
+                                { 
+                                    "ErrorEquals": [ "States.ALL" ], 
+                                    "Next": "Log-JobFailed-Event" 
+                                } 
+                                ] 
+                            }, 
+                            "Log-JobSuccess-Event": { 
+                                "Type": "Task", 
+                                "Resource": "${logJobSuccessEventArn}",  
+                                "ResultPath":"$.logupdate", 
+                                "End": true 
+                            }, 
+                            "Log-JobFailed-Event": { 
+                                "Type": "Task", 
+                                "Resource": "${logJobFailEventArn}",  
+                                "Next": "FailedState"    
+                            }, 
+                            "FailedState": { 
+                                "Type": "Fail", 
+                                "Error": "Step is failed with return code -1 ", 
+                                "Cause": "Job Failed!" 
+                            }                       
+                        } 
+                    } 
+            - {               
+                commonJobStartArn : !GetAtt commonJobStartEvent.Arn , 
+                logJobSuccessEventArn: !GetAtt  logJobSuccessEvent.Arn, 
+                logJobFailEventArn: !GetAtt logJobFailEvent.Arn 
+              }                
+ 
+
+  portfolioSourceWorkflow: 
+    Type: "AWS::StepFunctions::StateMachine" 
+    Properties: 
+      StateMachineName: !Sub '${ApplicationShortName}-mrpdata-portfolio-wf-${EnvCd}_${EnvNo}' 
+      RoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'  
+      DefinitionString:  
+        !Sub  
+            - |-       
+               { 
+                "Comment": "Step Function for portfolio data sources from edi and mfeom,cpds,rpl eligibility check jobs", 
+                "TimeoutSeconds": 12000, 
+                "StartAt": "seedLogTable", 
+                "States": { 
+                    "seedLogTable": { 
+                        "Type": "Task", 
+                        "Resource": "${commonJobStartArn}", 
+                        "ResultPath":"$.JobStartResult",
+                        "Next": "SubmitBatchJobTask" 
+                    }, 
+                    "SubmitBatchJobTask": { 
+                        "Type": "Task", 
+                        "Resource": "arn:aws:states:::batch:submitJob.sync", 
+                        "Parameters": { 
+                            "JobName.$": "$.configData.jobName", 
+                            "JobQueue.$": "$.configData.jobQueue", 
+                            "JobDefinition.$": "$.configData.jobDefinition", 
+                            "Parameters.$": "$.configData.jobparameters", 
+                            "ContainerOverrides.$": "$.configData.ContainerOverrides", 
+                            "RetryStrategy": { 
+                                "Attempts.$": "$.configData.attempts" 
+                            } 
+                        }, 
+                        "InputPath":"$", 
+                        "ResultPath":"$.batchResult", 
+                        "Next": "UpdateSucessTask", 
+                        "Catch": [ 
+                            { 
+                                "ErrorEquals": [ "States.ALL" ], 
+                                "Next": "UpdateFailedTask" 
+                            } 
+                        ] 
+                    }, 
+                    "UpdateSucessTask": { 
+                        "Type": "Task", 
+                        "Resource": "${logJobSuccessEventArn}", 
+                        "ResultPath":"$.SuccessupdateResult", 
+                        "Next": "Check Porfolio Readiness" 
+                    } , 
+                    "Check Porfolio Readiness": { 
+                        "Type": "Task", 
+                        "Resource": "${portfolioCheckLambdaArn}", 
+                        "ResultPath":"$.portAttr", 
+                        "Next": "Run PortfolioCombiner ?" 
+                    }, 
+                    "Run PortfolioCombiner ?": { 
+                        "Type": "Choice", 
+                        "Choices": [ 
+                        { 
+                            "Variable": "$.portAttr.count", 
+                            "NumericGreaterThanEquals": 5, 
+                            "Next":  "Publish to Portfolio Topic" 
+                        } 
+                        ], 
+                         
+                        "Default": "Done" 
+                    }, 
+                    "Publish to Portfolio Topic": { 
+                        "Type": "Task", 
+                        "Resource": "arn:aws:states:::sqs:sendMessage", 
+                        "Parameters": { 
+                            "QueueUrl.$":"$.configData.QueueUrl", 
+                            "MessageBody.$": "$.configData.sqsMsg", 
+                            "MessageAttributes": { 
+                                "Producer": { 
+                                    "DataType": "String", 
+                                    "StringValue": "PORTFOLIO_COMBINER" 
+                                }, 
+                                "EntityName": { 
+                                   "DataType": "String", 
+                                   "StringValue":  "TRIGGER_PORTFOLIO" 
+                                }, 
+                                "EventName": { 
+                                   "DataType": "String", 
+                                   "StringValue":  "TRIGGER_PORTFOLIO" 
+                                }, 
+                                "PORTFOLIO_DATE": { 
+                                   "DataType": "String", 
+                                   "StringValue.$": "$.portAttr.PORTFOLIO_DATE" 
+                                    }, 
+                                "PORTFOLIO_SOURCE": { 
+                                   "DataType": "String", 
+                                   "StringValue.$": "$.portAttr.PORTFOLIO_SOURCE" 
+                                    }, 
+                                "configurationId": { 
+                                   "DataType": "String", 
+                                   "StringValue.$": "$.configData.configurationId" 
+                                } 
+                            } 
+                        }, 
+                        "ResultPath": "$.sqsResponse", 
+                        "Next": "Publish AMTM ?" 
+                    }, 
+                    "Publish AMTM ?": { 
+                      "Type": "Choice", 
+                      "Choices": [ 
+                        { 
+                        "Variable": "$.portAttr.PORTFOLIO_SOURCE", 
+                        "StringEquals": "FANNIE_DAILY", 
+                        "Next":  "Publish AMTM Messages" 
+                        }], 
+                        "Default": "Done" 
+                        }, 
+                    "Publish AMTM Messages": { 
+                      "Type": "Parallel", 
+                      "End": true, 
+                      "Branches": [ 
+                      { 
+                        "StartAt": "Publish AMTM_SUBMIT_LOAN_MARKS_REQ", 
+                        "States": {  
+                          "Publish AMTM_SUBMIT_LOAN_MARKS_REQ": { 
+                          "Type": "Task", 
+                          "Resource": "arn:aws:states:::sqs:sendMessage", 
+                          "Parameters": { 
+                            "QueueUrl.$": "$.configData.QueueUrl", 
+                            "MessageBody": { "Message" : "AMTM Submit SUBMIT_LOAN_MARKS_REQ" }, 
+                            "MessageAttributes": { 
+                              "Producer": { 
+                                "DataType": "String", 
+                                "StringValue": "fre01" 
+                                  }, 
+                              "EntityName": {     
+                                "DataType": "String", 
+                                "StringValue":  "SUBMIT_LOAN_MARKS_REQ" 
+                                }, 
+                              "EventName": { 
+                                "DataType": "String", 
+                                "StringValue":  "SUBMIT_LOAN_MARKS_REQ" 
+                                }, 
+                              "PORTFOLIO_DATE": { 
+                                "DataType": "String", 
+                                "StringValue.$": "$.portAttr.PORTFOLIO_DATE" 
+                                }, 
+                              "PORTFOLIO_SOURCE": {  
+                                "DataType": "String", 
+                                "StringValue.$": "$.portAttr.PORTFOLIO_SOURCE" 
+                                }, 
+                              "configurationId": {  
+                                "DataType": "String", 
+                                "StringValue": "SUBMIT_LOAN_MARKS_REQ" 
+                                } 
+                              } 
+                             }, 
+                          "ResultPath": "$.sqsResponse_SUBMIT_LOAN_MARKS_REQ",                             
+                          "End": true 
+                          } 
+                          } 
+                          }, 
+                      { 
+                        "StartAt":"Publish AMTM_SUBMIT_MARKS_REQ", 
+                        "States": { 
+                          "Publish AMTM_SUBMIT_MARKS_REQ": { 
+                          "Type": "Task", 
+                          "Resource": "arn:aws:states:::sqs:sendMessage", 
+                          "Parameters": { 
+                            "QueueUrl.$":"$.configData.QueueUrl", 
+                            "MessageBody": { "Message" : "AMTM Submit SUBMIT_MARKS_REQ" },   
+                            "MessageAttributes": { 
+                              "Producer": { 
+                                "DataType": "String", 
+                                "StringValue": "fre01" 
+                                }, 
+                              "EntityName": { 
+                                "DataType": "String", 
+                                "StringValue":  "SUBMIT_MARKS_REQ" 
+                                 }, 
+                              "EventName": { 
+                                "DataType": "String", 
+                                "StringValue":  "SUBMIT_MARKS_REQ" 
+                                         }, 
+                              "PORTFOLIO_DATE": { 
+                                "DataType": "String", 
+                                "StringValue.$": "$.portAttr.PORTFOLIO_DATE" 
+                                }, 
+                              "PORTFOLIO_SOURCE": {   
+                                 "DataType": "String", 
+                                 "StringValue.$": "$.portAttr.PORTFOLIO_SOURCE" 
+                                  }, 
+                              "configurationId": { 
+                                 "DataType": "String", 
+                                 "StringValue": "SUBMIT_MARKS_REQ" 
+                                 } 
+                            } 
+                           }, 
+                          "ResultPath": "$.sqsResponse_SUBMIT_MARKS_REQ",  
+                           "End":true 
+                           } 
+                           } 
+                        }] 
+                         },
+                    "UpdateFailedTask": { 
+                        "Type": "Task", 
+                        "Resource": "${logJobFailEventArn}", 
+                        "ResultPath":"$.FailResultUpdate", 
+                        "Next": "Done"   
+                    }, 
+                    "Done": { 
+                        "Type": "Pass", 
+                        "End": true 
+                    }     
+                } 
+               } 
+            - { 
+                commonJobStartArn : !GetAtt commonJobStartEvent.Arn , 
+                logJobSuccessEventArn: !GetAtt  logJobSuccessEvent.Arn, 
+                logJobFailEventArn: !GetAtt logJobFailEvent.Arn, 
+                portfolioCheckLambdaArn: !GetAtt portfolioCheckLambda.Arn 
+              }
+
+  mstrWorkflow: 
+    Type: "AWS::StepFunctions::StateMachine" 
+    Properties: 
+      StateMachineName: !Sub '${ApplicationShortName}-mstr-event-wf-${EnvCd}_${EnvNo}' 
+      RoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'  
+      DefinitionString:  
+        !Sub  
+            - |-       
+               { 
+                "Comment": "An example of the Amazon States Language that runs an AWS Batch job and monitors the job until it completes.",
+                "TimeoutSeconds": 18000, 
+                "StartAt": "fre01-mrpdata-mstr-controller",
+                "States": {
+                  "fre01-mrpdata-mstr-controller": {
+                    "Type": "Task",
+                    "Resource": "${mstrLambdaArn}",
+                    "ResultPath": "$.guid",
+                    "Next": "Wait X Seconds",
+                    "Retry": [
+                      {
+                        "ErrorEquals": ["States.ALL"],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2
+                      }
+                    ]
+                  },
+                  "Wait X Seconds": {
+                    "Type": "Wait",
+                    "Seconds": 60,
+                    "Next": "fre01-mrpdata-mstr-check-jobstatus"
+                  },
+                  "fre01-mrpdata-mstr-check-jobstatus": {
+                    "Type": "Task",
+                    "Resource": "${mstrCheckStatusLambdaArn}",
+                    "Next": "Job Complete?",
+                    "InputPath": "$.guid",
+                    "ResultPath": "$.status",
+                    "Retry": [
+                      {
+                        "ErrorEquals": ["States.ALL"],
+                        "IntervalSeconds": 1,
+                        "MaxAttempts": 3,
+                        "BackoffRate": 2
+                      }
+                    ]
+                  },
+                  "Job Complete?": {
+                    "Type": "Choice",
+                    "Choices": [
+                      {
+                        "Variable": "$.status",
+                        "StringEquals": "N",
+                        "Next": "Wait X Seconds"
+                      },
+                      {
+                        "Variable": "$.status",
+                        "StringEquals": "Y",
+                        "Next": "Final"
+                      }
+                    ],
+                    "Default": "Wait X Seconds"
+                  },
+                  "Final": {
+                    "Type": "Wait",
+                    "Seconds": 10,
+                    "End": true
+                  }
+                }
+               } 
+            - {
+                mstrLambdaArn: !GetAtt mstrEventLambda.Arn,
+                mstrCheckStatusLambdaArn: !GetAtt mstrCheckStatusLambda.Arn
+              }
+  dblayer:
+    Type: 'AWS::Lambda::LayerVersion'   
+    Properties:
+      CompatibleRuntimes:
+         - python3.6      
+         - python3.7
+      Content: fre01-dblayer.zip
+      Description: 'db connection details'
+      LayerName: !Sub 'fre01-dbconn-layer-${EnvCd}_${EnvNo}'
+  mstrlayer:
+    Type: 'AWS::Lambda::LayerVersion'   
+    Properties:
+      CompatibleRuntimes:
+         - python3.6      
+         - python3.7
+      Content: fre01-mstrLayer.zip
+      Description: 'mstr piko dependencies'
+      LayerName: !Sub 'fre01-mstrLayer-${EnvCd}_${EnvNo}'
+         
+  controllerLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-event-controller-${EnvCd}_${EnvNo}' 
+      Handler: MrpdataEventController.lambda_handler 
+      Runtime: python3.7 
+      Code: fre01-mrpdata-event-controller.zip 
+      Description: ' mrdata event control lambda   ' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'    
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+
+      Environment: 
+        Variables: 
+          ACCOUNT_NO : !Ref Account 
+          APP_ENV_CD: !Ref EnvCd 
+          APP_ENV_NO: !Ref EnvNo 
+          AWS_BATCH_JOB_DEF_TEMPLATE_30:     !Ref MRPDataJobDefinitionThirty 
+          AWS_BATCH_JOB_DEF_TEMPLATE_60:    !Ref MRPDataJobDefinitionSixty 
+          AWS_BATCH_JOB_DEF_TEMPLATE_90:     !Ref MRPDataJobDefinitionNinty 
+          AWS_BATCH_JOB_QUEUE_NAME:           !Ref   JobQueueName 
+          AWS_SQS_DEAD_LETTER_QUEUE_NM:       !Sub 'fre01-mrpdata-dead-letter-queue-${EnvCd}_${EnvNo}' 
+          AWS_SQS_QUEUE_NM:                   !Sub 'fre01-mrpdata-inbound-queue-${EnvCd}_${EnvNo}' 
+          COMMON_EVENT_STEPFUNC_ARN:          !Ref commonWorkflow 
+          MRP_BATCH_JOB_DEF_LIST:            !Sub 'JobDefinitions/JobDefinitionList.json' 
+          MSTR_EVENT_STEPFUNC_ARN:           !Ref mstrWorkflow
+          PORTFOLIO_DATA_SOURCE_EVENT_STEPFUNC_ARN: !Ref portfolioSourceWorkflow 
+          PRIMA_EVENT_STEPFUNC_ARN: !Ref primaWorkflow 
+          DGP_EVENT_STEPFUNC_ARN: !Ref dgpEventWorkFlow
+          
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+ 
+  valuationJobStart: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-log-valuation-job-start-event-${EnvCd}_${EnvNo}' 
+      Handler: fre01-log.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-log-valuation-job-start-event.zip 
+      Description: ' lambda to make valuation  t_load_log entry in red shift ' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'    
+      Layers: 
+            - !Ref dblayer
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:     !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE 
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD:    !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+          CMDS_SCHEMA: !Ref CMDSSCHEMA 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+ 
+  logJobSuccessEvent: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-log-job-success-event-${EnvCd}_${EnvNo}' 
+      Handler: fre01-mrpdata-job-log-updt.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-log-job-success-event.zip  
+      Description: ' lambda to Update  t_load_log  with success in red shift ' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+      Layers: 
+          - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          ACCOUNT_NUM:   !Ref Account 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:     !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE 
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD: !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+          ENT_DATA_CATALOG_QUEUE_URL: !Sub 'https://sqs.${AWS::Region}.amazonaws.com/${AWS::AccountId}/fdc03-${AWS::Region}-${EnvCd}-Applications-operational-messages.fifo'  
+          CMDS_SCHEMA: !Ref CMDSSCHEMA 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+ 
+  logJobFailEvent: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-log-job-failed-event-${EnvCd}_${EnvNo}' 
+      Handler: fre01-mrpdata-job-log-updt.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-log-job-failed-event 
+      Description: ' lambda to Update  t_load_log  with Failure in red shift ' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+      Layers: 
+         - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:     !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE 
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD: !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+          CMDS_SCHEMA: !Ref CMDSSCHEMA 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+ 
+  commonJobStartEvent: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-log-job-start-event-${EnvCd}_${EnvNo}' 
+      Handler: fre01-log.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-log-job-start-event.zip 
+      Description: ' lambda to make mrpData  t_load_log entry in red shift ' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+      Layers: 
+           - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:     !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE 
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD:    !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+          CMDS_SCHEMA: !Ref CMDSSCHEMA 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+                      
+  portfolioCheckLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-portfolio-combiner-readiness-check-${EnvCd}_${EnvNo}' 
+      Handler: lambda_function.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-portfolio-combiner-readiness-check.zip 
+      Description: ' lambda to check conditions for portfolio load' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+      Layers: 
+            - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:    !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE 
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD:    !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+          CMDS_SCHEMA: !Ref CMDSSCHEMA 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+ 
+  dgpRedshiftSqlExecutor: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-dgp-redshift-sql-executor-${EnvCd}_${EnvNo}' 
+      Handler: lambda_function.lambda_handler 
+      Runtime: python3.6 
+      Code: fre01-mrpdata-dgp-redshift-sql-executor.zip 
+      Description: ' lambda to run dgp redshift sql quires' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl' 
+      Layers: 
+          - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          APP_ENV_CD:    !Ref EnvCd 
+          APP_ENV_NO:    !Ref EnvNo 
+          CMDS_DATABASE: !Ref CMDSDATABASE
+          CMDS_SCHEMA: !Ref CMDSSCHEMA          
+          CMDS_PORT:     !Ref CMDSPORT 
+          CMDS_ENDPOINT: !Ref CMDSENDPOINT 
+          PAM_APP_CD:     !Ref AppCode 
+          PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}_${EnvNo}-mrpdata-redshift' 
+          PAM_ENV_CD:    !Ref PamEnvCd 
+          AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}' 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+
+  dgpBatchJobTrigger: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-dgp-batch-job-trigger-${EnvCd}_${EnvNo}' 
+      Handler: lambda_function.lambda_handler 
+      Runtime: python3.7 
+      Code: fre01-mrpdata-dgp-batch-job-trigger.zip 
+      Description: ' lambda to run dgp batch job' 
+      MemorySize: 1024 
+      Timeout: 300 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+      Layers: 
+           - !Ref dblayer      
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          stateMachineJobExecutionArn: !Ref commonWorkflow 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+
+  gdcLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+      FunctionName: !Sub 'fre01-mrpdata-gdc-${EnvCd}_${EnvNo}' 
+      Handler: lambda_function.lambda_handler 
+      Runtime: python3.7 
+      Code: fre01-mrpdata-gdc.zip 
+      Description: ' lambda to create gdc partition' 
+      MemorySize: 1024 
+      Timeout: 900 
+      Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'     
+      VpcConfig: 
+         SecurityGroupIds: !Ref SecurityGroupIds 
+         SubnetIds: !Ref SubnetIds 
+      Environment: 
+        Variables: 
+          catalogId: !Ref  Account 
+      Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName 
+
+  gdcInvalidPartitionLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+        FunctionName: !Sub 'fre01-mrpdata-gdc-invalid-partition-${EnvCd}_${EnvNo}' 
+        Handler: lambda_function.lambda_handler 
+        Runtime: python3.7 
+        Code: fre01-mrpdata-gdc-invalid-partition.zip 
+        Description: ' lambda to create gdc partition' 
+        MemorySize: 1024 
+        Timeout: 900 
+        Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+        VpcConfig: 
+            SecurityGroupIds: !Ref SecurityGroupIds 
+            SubnetIds: !Ref SubnetIds 
+        Environment: 
+          Variables: 
+            catalogId: !Ref  Account 
+        Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName
+
+  dgpEventWorkFlow: 
+    Type: "AWS::StepFunctions::StateMachine" 
+    Properties: 
+      StateMachineName: !Sub '${ApplicationShortName}-mrpdata-dgp-event-wf-${EnvCd}_${EnvNo}' 
+      RoleArn: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'  
+      DefinitionString:  
+        !Sub  
+            - |-       
+                  { 
+                     "Comment":"Common Job orchestration MRPDATA Events for DGP", 
+                     "StartAt":"DGPCalenderQueryPass", 
+                     "States": {   
+                        "DGPCalenderQueryPass": {   
+                           "Type":"Pass", 
+                           "Parameters": {   
+                              "redshiftQuery.$":"$.configData.sqlQuieres.DGPCalenderQuery", 
+                              "minCount":"0", 
+                              "maxCount":"15", 
+                              "queryNumber":1 
+                            }, 
+                           "ResultPath":"$.Parameters", 
+                           "Next":"DGPCalenderCheckTask" 
+                         }, 
+                        "DGPCalenderCheckTask": {   
+                           "Type":"Task", 
+                           "Resource":"${dgpRedshiftSqlExecutorARN}", 
+                           "ResultPath":"$", 
+                           "Next":"DGPCalenderChoice" 
+                         }, 
+                        "DGPCalenderChoice": {   
+                           "Type":"Choice", 
+                           "Choices": [   
+                              {   
+                                 "Variable":"$.Parameters.dataAvailableStatus", 
+                                 "NumericEquals":0, 
+                                 "Next":"DGP-PortfolioQueryPass" 
+                               }, 
+                              {   
+                                 "Variable":"$.Parameters.dataAvailableStatus", 
+                                 "NumericEquals":-1, 
+                                 "Next":"FailedState" 
+                               } 
+                            ] 
+                         }, 
+                        "DGP-PortfolioQueryPass": {   
+                           "Type":"Pass", 
+                           "Parameters": {   
+                              "redshiftQuery.$":"$.configData.sqlQuieres.DGP-PortfolioQuery", 
+                              "minCount":"0", 
+                              "maxCount":"15", 
+                              "queryNumber":2 
+                            }, 
+                           "ResultPath":"$.Parameters", 
+                           "Next":"DGP-PortfolioCheckTask" 
+                         }, 
+                        "DGP-PortfolioCheckTask": {   
+                           "Type":"Task", 
+                           "Resource":"${dgpRedshiftSqlExecutorARN}", 
+                           "ResultPath":"$", 
+                           "Next":"DGP-PortfolioChoice" 
+                         }, 
+                        "DGP-PortfolioChoice": {   
+                           "Type":"Choice", 
+                           "Choices": [   
+                              {   
+                                 "Variable":"$.Parameters.dataAvailableStatus", 
+                                 "NumericEquals":0, 
+                                 "Next":"Parallel" 
+                               }, 
+                              {   
+                                 "Variable":"$.Parameters.dataAvailableStatus", 
+                                 "NumericEquals":-1, 
+                                 "Next":"FailedState" 
+                               }, 
+                              {   
+                                 "Variable":"$.Parameters.dataAvailableStatus", 
+                                 "NumericEquals":1, 
+                                 "Next":"DGP-PortfolioCheckWait" 
+                               } 
+                            ] 
+                         }, 
+                        "Parallel": {   
+                           "Type":"Parallel", 
+                           "Next":"SuccessState", 
+                           "Branches": [   
+                              {   
+                                 "StartAt":"DGP-PortfolioBatchJobChoice", 
+                                 "States": {   
+                                    "DGP-PortfolioBatchJobChoice": {   
+                                       "Type":"Choice", 
+                                       "Choices":[   
+                                          {   
+                                             "Variable":"$.configData.configurationId", 
+                                             "StringEquals":"dgp_daily_outbound", 
+                                             "Next":"DGP-PortfolioBatchJob" 
+                                           } 
+                                         ], 
+                                       "Default":"NotRequiredDGP-PortfolioBatchJob" 
+                                     }, 
+                                    "DGP-PortfolioBatchJob": {   
+                                       "Type":"Task", 
+                                       "Resource":"${dgpBatchJobTriggerARN}", 
+                                       "End":true 
+                                     }, 
+                                    "NotRequiredDGP-PortfolioBatchJob": {   
+                                       "Type":"Pass", 
+                                       "Result":"No Need to Submit DGP-PortfolioBatchJob", 
+                                       "End":true 
+                                     } 
+                                  } 
+                               }, 
+                              {   
+                                 "StartAt":"DGP-DMRValuationQueryPass", 
+                                 "States": {   
+                                    "DGP-DMRValuationQueryPass": {   
+                                       "Type":"Pass", 
+                                       "Parameters": {   
+                                          "redshiftQuery.$":"$.configData.sqlQuieres.DGP-DMRValuationQuery", 
+                                          "minCount":"0", 
+                                          "maxCount":"15", 
+                                          "queryNumber":3 
+                                        }, 
+                                       "ResultPath":"$.Parameters", 
+                                       "Next":"DGP-DMRValuationCheckTask" 
+                                     }, 
+                                    "DGP-DMRValuationCheckTask": {   
+                                       "Type":"Task", 
+                                       "Resource":"${dgpRedshiftSqlExecutorARN}", 
+                                       "ResultPath":"$", 
+                                       "Next":"DGP-DMRValuationChoice" 
+                                     }, 
+                                    "DGP-DMRValuationChoice": {   
+                                       "Type":"Choice", 
+                                       "Choices": [   
+                                          {   
+                                             "Variable":"$.Parameters.dataAvailableStatus", 
+                                             "NumericEquals":0, 
+                                             "Next":"DGP-DMRValuationBatchJob" 
+                                           }, 
+                                          {   
+                                             "Variable":"$.Parameters.dataAvailableStatus", 
+                                             "NumericEquals":-1, 
+                                             "Next":"FailedLoanState" 
+                                           }, 
+                                          {   
+                                             "Variable":"$.Parameters.dataAvailableStatus", 
+                                             "NumericEquals":1, 
+                                             "Next":"DMRValuationCheckWait" 
+                                           } 
+                                        ] 
+                                     }, 
+                                    "DGP-DMRValuationBatchJob": {   
+                                       "Type":"Task", 
+                                       "Resource":"${dgpBatchJobTriggerARN}", 
+                                       "End":true 
+                                     }, 
+                                    "DMRValuationCheckWait": {   
+                                       "Type":"Wait", 
+                                       "Seconds":180, 
+                                       "Next":"DGP-DMRValuationCheckTask" 
+                                     }, 
+                                    "FailedLoanState": {   
+                                       "Type":"Fail", 
+                                       "Error":"Step is failed with return code -1 ", 
+                                       "Cause":"Job Failed!" 
+                                     } 
+                                  } 
+                               } 
+                            ] 
+                         }, 
+                        "DGP-PortfolioCheckWait": {   
+                           "Type":"Wait", 
+                           "Seconds":180, 
+                           "Next":"DGP-PortfolioCheckTask" 
+                         }, 
+                        "FailedState": {   
+                           "Type":"Fail", 
+                           "Error":"Step is failed with return code -1 ", 
+                           "Cause":"Job Failed!" 
+                         }, 
+                        "SuccessState": {   
+                           "Type":"Pass", 
+                           "End":true 
+                         } 
+                      } 
+                   } 
+            - {               
+                dgpBatchJobTriggerARN : !GetAtt dgpBatchJobTrigger.Arn , 
+                dgpRedshiftSqlExecutorARN: !GetAtt  dgpRedshiftSqlExecutor.Arn 
+              }
+
+  mstrEventLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties:
+        FunctionName: !Sub 'fre01-mrpdata-mstr-controller-${EnvCd}_${EnvNo}' 
+        Handler: sshLambda.lambda_handler
+        Runtime: python3.6
+        Code: fre01-mrpdata-mstr-controller.zip 
+        Description: ' lambda for master controller' 
+        Layers:
+           - !Ref mstrlayer
+        MemorySize: 128 
+        Timeout: 300 
+        Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'    
+        VpcConfig: 
+            SecurityGroupIds: !Ref MstrSecurityGroupIds 
+            SubnetIds: !Ref MstrSubnetIds 
+        Environment: 
+          Variables: 
+            PAM_APP_CD:     !Ref AppCode
+            PAM_OBJ_REF:   !Sub '${ApplicationShortName}-${EnvCd}-edl-edl-ad'
+            PAM_ENV_CD:    !Ref PamEnvCd
+            command: !Sub '/appl/cmbi${EnvCd}/cmbi-microstrategy-10.4.0/bin/mstrsysmgr -W /appl/cmbi${EnvCd}/cmbi-microstrategy-10.4.0/workflow/reportcaching-${EnvCd}/MainWorkflow.smw -f /appl/cmbi${EnvCd}/cmbi-microstrategy-10.4.0/workflow/reportcaching-${EnvCd}/properties_mainworkflow.smp > /dev/null 2>&1 &'
+            hostname: !Sub '${hostname}'
+            APP_ENV_CD:    !Ref EnvCd
+            APP_ENV_NO:    !Ref EnvNo
+            AWS_VREF: !Sub 'pv${EnvCd}-edl-${AWS::Region}'
+            
+        Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName
+
+  mstrCheckStatusLambda: 
+    Type: 'AWS::Lambda::Function' 
+    Properties: 
+        FunctionName: !Sub 'fre01-mrpdata-mstr-check-jobstatus-${EnvCd}_${EnvNo}' 
+        Handler: lambda_function.lambda_handler 
+        Runtime: python3.6
+        Code: fre01-mrpdata-mstr-job-status.zip 
+        Description: ' lambda to to check status' 
+        MemorySize: 128 
+        Timeout: 60 
+        Role: !Sub 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/fnma-${ApplicationShortName}-${EnvCd}-edl-instance-role-edl'
+        VpcConfig: 
+            SecurityGroupIds: !Ref SecurityGroupIds 
+            SubnetIds: !Ref SubnetIds 
+        Environment: 
+          Variables: 
+            BUCKET_NAME: !Sub 'fnma-${ApplicationShortName}-${EnvCd}-edl-${AWS::Region}-edl'
+            PREFIX: 'logs/app/mstr/mstr_job_flag'
+            SSEKMSKeyId: 'alias/fnma/app/fre01'
+        Tags: 
+        -   Key: AppCode 
+            Value: !Ref AppCode 
+        -   Key: ApplicationName 
+            Value: !Ref ApplicationName 
+        -   Key: CostCenter 
+            Value: !Ref CostCenter 
+        -   Key: Environment 
+            Value: !Sub '${EnvCd}_${EnvNo}' 
+        -   Key: AssetID 
+            Value: !Ref AssetID 
+        -   Key: ApplicationShortName 
+            Value: !Ref ApplicationShortName
+
+  cwSrdbRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-srdb-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start SRDB jobs"
+        ScheduleExpression: "cron(0 07 ? * TUE-SAT *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwsrdbrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                eventSource: "$.source"
+                resources: "$.resources"
+                id: "$.id"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<eventSource>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"srdb_volatility", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwSrdbPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwSrdbRule.Arn
+
+  cwIrdbPriceRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-irdb-price-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start IRDB Price jobs"
+        ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwirdbpricerule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"irdb_prices", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwIrdbPricePermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwIrdbPriceRule.Arn
+
+  cwIrdbRatesRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-irdb-rates-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start IRDB Rates jobs"
+        ScheduleExpression: "cron(0 5 ? * * *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwirdbratesrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"irdb_rates", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwIrdbRatesPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwIrdbRatesRule.Arn
+
+  cwIrdbRatesSofrRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-irdb-rates-sofr-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start IRDB Rates SOFR jobs"
+        ScheduleExpression: "cron(0 13 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwirdbratessofrrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail": {"EventType":"irdb_rates_sofr", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwIrdbRatesSofrPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwIrdbRatesSofrRule.Arn
+
+  cwVarRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-var-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start var jobs"
+        ScheduleExpression: "cron(0 11 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwvarrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"var", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwVarPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwVarRule.Arn
+
+  cwPfeRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-pfe-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start pfe jobs"
+        ScheduleExpression: "cron(0 7 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwpferule-target-${EnvCd}_${EnvNo}"
+            InputTransformer:
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"pfe", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwPfePermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwPfeRule.Arn
+
+  cwMstrRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-mstr-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start microstrategy job"
+        ScheduleExpression: "cron(0 9 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwmstrrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"mstr", "PORTFOLIO_DATE":""}}'
+    DependsOn: "controllerLambda"
+
+  cwMstrPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwMstrRule.Arn
+  
+  cwDgpDailyOutRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-dgp-daily-out-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start dgp daily outbound jobs"
+        ScheduleExpression: "cron(30 1 * * ? *)"
+        State: "Disabled"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwdgpdailyoutrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: "{\"id\":<id>, \"detail-type\":\"Scheduled Event\", \"source\":<source>, \"account\":<account>, \"time\":<time>, \"region\":<region>, \"resources\":<resources>, \"detail\":{\"EventType\":\"dgp_daily_outbound\", \"PORTFOLIO_DATE\":\"sysDate-1\", \"sqlQuieres\": {\"DGPCalenderQuery\":\"SELECT TO_CHAR(prev_date, 'YYYY-MM-DD') AS prev_date FROM calendar WHERE prev_date = '@@arg[0]@@'\", \"DGP-PortfolioQuery\":\"SELECT port_id FROM (SELECT port_id,RANK() OVER (ORDER BY p.data_load_aud_log_id DESC) AS rnk FROM port p WHERE p.rec_rptg_acvy_dt = (SELECT TO_CHAR(prev_date,'YYYY-MM-DD') AS prev_date FROM calendar WHERE prev_date = '@@arg[0]@@') AND p.PORT_DATA_SRC_NME = 'FANNIE_DAILY') WHERE rnk = 1\", \"DGP-DMRValuationQuery\":\"SELECT DISTINCT FIRST_VALUE(DATA_MRDY_LOAD_ID) OVER (ORDER BY creation_dttm DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED following) AS dmr_load_id FROM DATA_MRDY_RUN dr JOIN run_input ri USING (DATA_MRDY_LOAD_ID) JOIN valuation_run vr USING (REC_RPTG_ACVY_DT,DATA_MRDY_LOAD_ID) JOIN (SELECT load_id, result_type, valuation_run_key_id, VERSION, certification_status, creation_dttm, dwh_id, port_dt, FIRST_VALUE(dwh_id) OVER (PARTITION BY load_id ORDER BY VERSION,creation_dttm DESC ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS latest_warehouse_id FROM valuation_run_certification WHERE result_type = 'PVR') vrc ON (vrc.valuation_run_key_id = vr.valuation_run_key_id AND vrc.load_id = vr.valuation_load_id AND vrc.port_dt = vr.port_dt) WHERE dr.port_dt = (SELECT TO_CHAR(prev_date,'YYYY-MM-DD') AS prev_date FROM calendar WHERE prev_date = '@@arg[0]@@') AND ri.port_id = (SELECT port_id FROM (SELECT port_id,RANK() OVER (ORDER BY p.data_load_aud_log_id DESC) AS rnk FROM port p WHERE p.rec_rptg_acvy_dt = (SELECT TO_CHAR(prev_date,'YYYY-MM-DD') AS prev_date FROM calendar WHERE prev_date = '@@arg[0]@@') AND p.PORT_DATA_SRC_NME = 'FANNIE_DAILY') WHERE rnk = 1) AND PORT_DATA_SRC_NME = 'FANNIE_DAILY' AND DATA_MRDY_PSEG_NME = 'BRS Product Type Set Standard_Daily' AND vrc.dwh_id = vrc.latest_warehouse_id AND certification_status = 'true'\" }}}" 
+    DependsOn: "controllerLambda"
+
+  cwDgpDailyOutPermission:
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwDgpDailyOutRule.Arn
+
+  cwDgpEOMOutRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-dgp-eom-out-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start dgp EOM outbound job"
+        ScheduleExpression: "cron(0/1 * 1 * ? *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwdgpeomoutrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: "{\"id\":<id>, \"detail-type\":\"Scheduled Event\", \"source\":<source>, \"account\":<account>, \"time\":<time>, \"region\":<region>, \"resources\":<resources>, \"detail\":{\"EventType\": \"DGP_MONTHLY_OUTBOUND_EOD\", \"PORTFOLIO_DATE\":\"sysDate-1\", \"sqlQuieres\":{\"DGPCalenderQuery\": \"SELECT to_char(MIN(cal_prev_eom_date),'YYYY-MM-DD') AS portfolio_date FROM calendar WHERE cal_date >= '@@arg[0]@@'\", \"DGP-PortfolioQuery\": \"select distinct vr.port_id from valuation_run vr join (select distinct port_dt, valuation_run_key_id, version, result_type, load_id, last_value(certification_status) over (partition by port_dt, load_id order by version rows between unbounded preceding and unbounded following) as status from VALUATION_RUN_CERTIFICATION) vrc on (result_type = 'PVR' and load_id = vr.valuation_Load_id and vrc.port_dt = vr.port_dt) join VALUATION_RUN_KEY_TO_SHORTHAND_MAP vrs on (vrs.valuation_run_key_id = vrc.valuation_run_key_id) join run_input using (DATA_MRDY_LOAD_ID) where vr.port_dt = '@@arg[0]@@' and type_shorthand = 'Base' and status = 'true'\", \"DGP-DMRValuationQuery\": \"select distinct CAST(first_value(DATA_MRDY_LOAD_ID) over (order by creation_dttm rows between unbounded preceding and current row) AS VARCHAR) as DMR_LOAD_ID from DATA_MRDY_RUN dr join run_input ri using (DATA_MRDY_LOAD_ID) join valuation_run vr using   (REC_RPTG_ACVY_DT, DATA_MRDY_LOAD_ID) join (select load_id, result_type, valuation_run_key_id, version, certification_status, creation_dttm, dwh_id, port_dt, first_value(dwh_id) over (partition by load_id order by version,creation_dttm rows between unbounded preceding and current row) as latest_warehouse_id from valuation_run_certification where result_type = 'PVR') vrc on (vrc.valuation_run_key_id = vr.valuation_run_key_id and vrc.load_id = vr.valuation_load_id and vrc.port_dt = vr.port_dt) where dr.port_dt = '@@arg[0]@@' and ri.port_id = (select distinct vr.port_id from valuation_run vr join (select distinct port_dt, valuation_run_key_id, version, result_type, load_id, last_value(certification_status) over (partition by port_dt, load_id order by version rows between unbounded preceding and unbounded following) as status from VALUATION_RUN_CERTIFICATION) vrc on (result_type = 'PVR' and load_id = vr.valuation_Load_id and vrc.port_dt = vr.port_dt) join VALUATION_RUN_KEY_TO_SHORTHAND_MAP vrs on (vrs.valuation_run_key_id = vrc.valuation_run_key_id) join run_input using (DATA_MRDY_LOAD_ID) where vr.port_dt = '@@arg[0]@@' and type_shorthand = 'Base' and status = 'true') and PORT_DATA_SRC_NME = 'FANNIE_DAILY' and DATA_MRDY_PSEG_NME = 'BRS Product Type Set Standard_Daily' and vrc.dwh_id = vrc.latest_warehouse_id and certification_status = 'true'\"}}}" 
+    DependsOn: "controllerLambda"
+
+  cwDgpEOMOutPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwDgpEOMOutRule.Arn
+
+  cwDgpMonthEndOutRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-dgp-monthend-out-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start dgp month end outbound job"
+        ScheduleExpression: "cron(0/1 * 1 * ? *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwdgpmeoutrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: "{\"id\":<id>, \"detail-type\":\"Scheduled Event\", \"source\":<source>, \"account\":<account>, \"time\":<time>, \"region\":<region>, \"resources\":<resources>, \"detail\":{\"EventType\":\"DGP_MONTHLY_OUTBOUND_EOD\", \"PORTFOLIO_DATE\":\"sysDate-1\", \"sqlQuieres\":{\"DGPCalenderQuery\":\"SELECT to_char(MIN(cal_prev_eom_date),'YYYY-MM-DD') AS portfolio_date FROM calendar WHERE cal_date >= '@@arg[0]@@'\", \"DGP-PortfolioQuery\":\"SELECT DISTINCT FIRST_VALUE(port_id) OVER (ORDER BY p.REC_CREN_DT DESC ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED following) AS portfolio_id FROM port p JOIN PORT_INSM PI USING (REC_RPTG_ACVY_DT,port_id) WHERE pi.port_dt = (SELECT TO_CHAR(prev_date, 'YYYY-MM-DD') AS prev_date FROM calendar WHERE prev_date = '@@arg[0]@@') AND   p.PORT_DATA_SRC_NME = 'FANNIE_DAILY'\", \"DGP-DMRValuationQuery\":\"\"}}}"
+    DependsOn: "controllerLambda"
+
+  cwDgpMonthEndOutPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwDgpMonthEndOutRule.Arn
+
+  cwDgpPlanBDailySecRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-dgp-planb-daily-sec-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start dgp Plan B Daily Security job"
+        ScheduleExpression: "rate(1 day)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwdgpplanbdailysecrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: "{\"id\":<id>, \"detail-type\":\"Scheduled Event\", \"source\":<source>, \"account\":<account>, \"time\":<time>, \"region\":<region>, \"resources\":<resources>, \"detail\":{\"EventType\":\"dgp_planb\", \"EntitySource\":\"DGP_PLANB_DAILY_SECURITIES\", \"PORTFOLIO_DATE\":\"sysDate\", \"POSITION_DATE\":\"sysDate\", \"sqlQuieres\":{\"DGPCalenderQuery\":\"SELECT 0\", \"DGP-PortfolioQuery\":\"select 0 \", \"DGP-DMRValuationQuery\":\"select 0\"}}}"
+    DependsOn: "controllerLambda"
+
+  cwDgpPlanBDailySecPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwDgpPlanBDailySecRule.Arn
+
+  cwDgpPlanBDailyWLoanRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-dgp-planb-daily-wloan-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start dgp Plan B Daily Whole Loan job"
+        ScheduleExpression: "rate(1 day)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwdgpplanbdailywloanrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: "{\"id\":<id>, \"detail-type\":\"Scheduled Event\", \"source\":<source>, \"account\":<account>, \"time\":<time>, \"region\":<region>, \"resources\":<resources>, \"detail\":{\"EventType\":\"dgp_planb\", \"EntitySource\":\"DGP_PLANB_DAILY_WHOLE_LOANS\", \"PORTFOLIO_DATE\":\"sysDate\", \"POSITION_DATE\":\"sysDate\", \"sqlQuieres\":{\"DGPCalenderQuery\":\"SELECT 0\", \"DGP-PortfolioQuery\":\"select 0 \", \"DGP-DMRValuationQuery\":\"select 0\"}}}"
+    DependsOn: "controllerLambda"
+
+  cwDgpPlanBDailyWLoanPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwDgpPlanBDailyWLoanRule.Arn
+          
+  cwMfloansRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-mfloans-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start mfloans jobs"
+        ScheduleExpression: "cron(0 22 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: controllerLambda.Arn
+            Id: !Sub "fre01-cwmfloansrule-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"mfloans", "PORTFOLIO_DATE":"sysDate"}}'
+    DependsOn: "controllerLambda"
+
+  cwMfloansPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: controllerLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwMfloansRule.Arn         
+
+          
+  cwMSTRHAORule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-mrpdata-mstr-hao-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start MSTR HAO jobs"
+        ScheduleExpression: "cron(0 15 ? * MON-FRI *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: mstrEventLambda.Arn
+            Id: !Sub "fre01-rpdata-mstr-hao-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"fre01-mrpdata-mstr-hao" },"user":"","password":"","hostname":"","command":""}'
+    DependsOn: "mstrEventLambda"
+
+  cwMfloansPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: mstrEventLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwMSTRHAORule.Arn         
+
+         
+  cwMSTRECRule:
+    Type: 'AWS::Events::Rule'
+    Properties:
+        Name: !Sub "fre01-mrpdata-mstr-EC-${EnvCd}_${EnvNo}"
+        Description: "scheduled event to start MSTR HAO jobs"
+        ScheduleExpression: "cron(0 4 1 * ? *)"
+        State: "ENABLED"
+        Targets: 
+          - 
+            Arn:
+              Fn::GetAtt: mstrEventLambda.Arn
+            Id: !Sub "fre01-rpdata-mstr-ec-target-${EnvCd}_${EnvNo}"
+            InputTransformer: 
+              InputPathsMap:
+                resources: "$.resources"
+                id: "$.id"
+                source: "$.source"
+                time: "$.time"
+                region: "$.region"
+                account: "$.account"
+              InputTemplate: '{"id":<id>, "detail-type":"Scheduled Event", "source":<source>, "account":<account>, "time":<time>, "region":<region>, "resources":<resources>, "detail":{"EventType":"fre01-mrpdata-mstr-ec" },"user":"","password":"","hostname":"","command":""}'
+    DependsOn: "mstrEventLambda"
+
+  cwMfloansPermission: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+        FunctionName: 
+            Fn::GetAtt: mstrEventLambda.Arn
+        Action: "lambda:InvokeFunction"
+        Principal: "events.amazonaws.com"
+        SourceArn: 
+          Fn::GetAtt: cwMSTRECRule.Arn         
+

@@ -1,0 +1,19 @@
+version: 0.1
+phases:
+  install:
+    commands:
+      - echo Nothing to do in the pre_build phase...
+  build:
+    commands:   
+      - echo Build started on `date`
+      - set -x
+      - pwd
+      - sudo chmod 777 build.sh
+      - ls -ltr
+      - ./build.sh 
+artifacts:
+  type: zip
+  files:
+    - New-MRP-Build-CF.yml
+    - buildscripts/*
+  discard-paths: yes

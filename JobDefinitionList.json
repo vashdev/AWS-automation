@@ -1,0 +1,929 @@
+{
+	"PVRVALNCLOUD": {
+		"command": "Samplejob/Samplejob_run.sh --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 1024,
+		"batch_file_name": "Samplejob_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"valuation_pnl": {
+		"command": "Valuation_Pnl_Launcher/Valuation_Pnl_Launcher_run.sh   --context_param  Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::manifest --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 6,
+		"memory": 22000,
+		"batch_file_name": "valuation_pnl_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"valuation_krd": {
+		"command": "Valuation_Krd_Launcher/Valuation_Krd_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::manifest --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 24000,
+		"batch_file_name": "valuation_krd_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"valuation_pvr": {
+		"command": "Valuation_Launcher/Valuation_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::manifest --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 14000,
+		"batch_file_name": "valuation_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"valuation_epl": {
+		"command": "Epl_Launcher/Epl_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::manifest --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 12000,
+		"batch_file_name": "epl_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"loan_sales": {
+		"command": "Loan_Sales_Launcher/Loan_Sales_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "loan_sales_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"cmh_frontbook": {
+		"command": "CMH_Launcher/CMH_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "cmh_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"cmh_hot": {
+		"command": "CMH_Launcher/CMH_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "cmh_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"amtm_rpl": {
+		"command": "AMTM_RPL_Launcher/AMTM_RPL_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=amtm_rpl  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_rpl_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"amtm_debts": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=amtm_debts  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [	"SELECT COUNT(1) FROM port_insm WHERE data_src='FANNIE_DAILY' and to_char(date(port_dt), 'yyyyMMdd') = 'filedt'"],
+		"DependencyCheckResult": ["1"],
+		"maxIterations": "240",
+		"on_hold": "false"
+	},
+	"amtm_loans_cmmt": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=amtm_loans_cmmt  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [""],
+		"DependencyCheckResult": [],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"amtm_sec_cmmt": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=amtm_sec_cmmt  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [""],
+		"DependencyCheckResult": [],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"amtm": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=amtm  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": ["SELECT COUNT(1) FROM port_insm WHERE data_src='FANNIE_DAILY' and to_char(date(port_dt), 'yyyyMMdd') ='filedt'"],
+		"DependencyCheckResult": ["1"],
+		"maxIterations": "240",
+		"on_hold": "false"
+	},
+	"SUBMIT_LOAN_MARKS_REQ": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD  --context_param Ref::batch_job_id --context_param  Ref::JOB_PORTFOLIO_DATE  --context_param Ref::input_file --context_param JOB_ENTITY_TYPE=SUBMIT_LOAN_MARKS_REQ  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"SUBMIT_MARKS_REQ": {
+		"command": "AMTM_Price_Launcher/AMTM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD  --context_param Ref::batch_job_id  --context_param Ref::input_file --context_param  Ref::JOB_PORTFOLIO_DATE   --context_param JOB_ENTITY_TYPE=SUBMIT_MARKS_REQ  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"amtm_mf_prices": {
+		"command": "AMTM_MFLN_EOM_Price_Launcher/AMTM_MFLN_EOM_Price_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param JOB_DATA_SRC=FANNIE_EOM --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "amtm_mfln_eom_price_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"irdb_prices": {
+		"command": "IRDB_Launcher/IRDB_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "irdb_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [""],
+		"DependencyCheckResult": [""],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"irdb_rates": {
+		"command": "IRDB_Launcher/IRDB_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "irdb_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"irdb_rates_sofr": {
+		"command": "IRDB_Launcher/IRDB_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param JOB_IRDB_COLLECTIONS_CONFIG=irdb_collections_sofr.dat --context_param JOB_IRDB_CONFIG=irdb_config_sofr.dat --context_param JOB_EXPECTED_COUNT=1  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "irdb_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"srdb_volatility": {
+		"command": "SRDB_Launcher/SRDB_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "srdb_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"ccfa_loan_profile": {
+		"command": "CPDS_Loan_Profile_Launcher/CPDS_Loan_Profile_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "cpds_loan_profile_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"sam_eod": {
+		"command": "SAM_TradeCusip_Launcher/SAM_TradeCusip_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "sam_tradecusip_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"sam_eom": {
+		"command": "SAM_TradeCusip_Launcher/SAM_TradeCusip_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "sam_tradecusip_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"sec_ods": {
+		"command": "Secu_ODS_Launcher/Secu_ODS_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "secu_ods_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"front_office": {
+		"command": "FrontOfficePrice_Launcher/FrontOfficePrice_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1 --context_param JOB_S3_CONSISTANT_VIEW_ENABLED=true",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "frontofficeprice_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"mrp_datamart_manifest": {
+		"command": "DataMart_Launcher/DataMart_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::dataset --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 1,
+		"memory": 3000,
+		"batch_file_name": "datamart_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			" SELECT count(1) FROM D_PORT where   port_dt='portdt' and port_data_src_nm='portsrc' "
+		],
+		"DependencyCheckResult": [
+			"1"
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"mrp_portfolio_datamart_manifest": {
+		"command": "DataMart_Launcher/DataMart_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::dataset --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 64000,
+		"batch_file_name": "datamart_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			" select count(1) from t_load_log where tgt_tab='mrp_portfolio_datamart_manifest' and UPPER(status) = 'PROCESSING' "
+		],
+		"DependencyCheckResult": [
+			"0"
+		],
+		"maxIterations": "240",
+		"on_hold": "false"
+
+	},
+	"INFO.LIAB_CRTD_EOD_SNAPSHOT": {
+		"command": "Liabilities_Launcher/Liabilities_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "liabilities_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.LIAB_CRTD_EOM_SNAPSHOT": {
+		"command": "Liabilities_Launcher/Liabilities_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "liabilities_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.SF_LNCMT_CRTD_EOD_SNAPSHOT": {
+		"command": "SFLoanCommitments_Launcher/SFLoanCommitments_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 16000,
+		"batch_file_name": "sfloancommitments_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.SF_LNCMT_CRTD_EOM_SNAPSHOT": {
+		"command": "SFLoanCommitments_Launcher/SFLoanCommitments_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 16000,
+		"batch_file_name": "sfloancommitments_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.SF_LN_CRTD_EOD_SNAPSHOT": {
+		"command": "SFLoans_Launcher/SFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 24000,
+		"batch_file_name": "sfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.SF_LN_CRTD_EOM_SNAPSHOT": {
+		"command": "SFLoans_Launcher/SFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 24000,
+		"batch_file_name": "sfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.ASTS_CRTD_EOD_SNAPSHOT": {
+		"command": "FDWSecurities_Launcher/FDWSecurities_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "fdwsecurities_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.ASTS_CRTD_EOM_SNAPSHOT": {
+		"command": "FDWSecurities_Launcher/FDWSecurities_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "fdwsecurities_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.MF_LNCMT_CRTD_EOD_SNAPSHOT": {
+		"command": "MFLoans_Launcher/MFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "mfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.MF_LNAQSN_CRTD_EOM_SNAPSHOT": {
+		"command": "MFLoans_Launcher/MFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "mfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.MF_LNSVCG_CRTD_EOM_SNAPSHOT": {
+		"command": "MFLoans_Launcher/MFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "mfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"INFO.LN_AQSN_ACTV_CASH_EOD_SPST": {
+		"command": "MFLoans_Launcher/MFLoans_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "mfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"dgp_daily_outbound": {
+		"command": "DGP_Outbound_Launcher/DGP_Outbound_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param Ref::job_portfolio_id --context_param Ref::job_data_mrdy_load_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "dgp_outbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"dgp_planb": {
+		"command": "DGP_Outbound_Plan_B_Launcher/DGP_Outbound_Plan_B_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::position_date --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param Ref::position_date --context_param Ref::entity_source  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "dgp_outbound_plan_b_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"dgp_inbound_daily": {
+		"command": "DGP_Inbound_Launcher/DGP_Inbound_Launcher_run.sh --context_param Ref::input_file --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD  --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 6000,
+		"batch_file_name": "dgp_inbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 60,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"dgp_inbound_weekly": {
+		"command": "DGP_Inbound_Launcher/DGP_Inbound_Launcher_run.sh --context_param Ref::input_file --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD  --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 6000,
+		"batch_file_name": "dgp_inbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 60,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"dgp_inbound_monthly": {
+		"command": "DGP_Inbound_Launcher/DGP_Inbound_Launcher_run.sh --context_param Ref::input_file --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD  --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 6000,
+		"batch_file_name": "dgp_inbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 60,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"DGP_MONTHLY_OUTBOUND_EOD": {
+		"command": "DGP_Outbound_Launcher/DGP_Outbound_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param Ref::job_portfolio_id  --context_param Ref::job_data_mrdy_load_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "dgp_outbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"DGP_MONTHLY_OUTBOUND_EOM": {
+		"command": "DGP_Outbound_Launcher/DGP_Outbound_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::entity_type --context_param Ref::batch_job_id  --context_param Ref::job_portfolio_id --context_param Ref::job_valuation_load_id --context_param Ref::job_data_mrdy_load_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "dgp_outbound_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"PORTFOLIO_COMBINER": {
+		"command": "Portfolio_Combiner_Launcher/Portfolio_Combiner_Launcher_run.sh --context_param Ref::BATCH_JOB_ID --context_param Ref::JOB_PORTFOLIO_DATE --context_param Ref::JOB_DATA_SRC --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param Ref::JOB_SCRATCH_DIR --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 32000,
+		"batch_file_name": "portfolio_combiner_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 1,
+		"DependencyCheckSql": ["select count(1) from t_load_log where tgt_tab IN ('secu_guaranty_run','portfolio_combiner') and UPPER(status) = 'PROCESSING' "],
+		"DependencyCheckResult": ["0"],
+		"maxIterations": "240",
+		"on_hold": "false"
+	},
+	"var": {
+		"command": "VAR_PFE_Launcher/VAR_PFE_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD   --context_param Ref::portfolio_date --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=VAR --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "var_pfe_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"pfe": {
+		"command": "VAR_PFE_Launcher/VAR_PFE_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::portfolio_date --context_param Ref::batch_job_id --context_param JOB_ENTITY_TYPE=PFE --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "var_pfe_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"pfecounterparty": {
+		"command": "PFECounterparty_Launcher/PFECounterparty_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "pfecounterparty_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"locus": {
+		"command": "VARDailyRates_Launcher/VARDailyRates_Launcher_run.sh  --context_param Ref::APP_ENV_NO  --context_param Ref::APP_ENV_CD --context_param Ref::input_file --context_param Ref::entity_type --context_param Ref::batch_job_id --context_param JOB_RESOLVE_RATES_ONLY=N  --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 2,
+		"memory": 3000,
+		"batch_file_name": "vardailyrates_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 1,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	},
+	"portfolio_combiner_guaranty": {
+		"command": "Portfolio_Combiner_Guaranty_Launcher/Portfolio_Combiner_Guaranty_Launcher_run.sh --context_param Ref::batch_job_id --context_param Ref::input_file --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 32000,
+		"batch_file_name": "portfolio_combiner_guaranty_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 90,
+		"attempts": 1,
+		"DependencyCheckSql": ["select count(1) from t_load_log where tgt_tab IN ('secu_guaranty_run','portfolio_combiner') and UPPER(status) = 'PROCESSING' "],
+		"DependencyCheckResult": ["0"],
+		"maxIterations": "240",
+		"on_hold": "false"
+	},
+	"mfloans": {
+		"command": "MFLoans_Launcher/MFLoans_Launcher_run.sh --context_param Ref::batch_job_id --context_param Ref::portfolio_date --context_param JOB_DATA_SRC=FANNIE_DAILY --context_param Ref::APP_ENV_NO --context_param Ref::APP_ENV_CD --context_param APP_AWS_REGION=us-east-1",
+		"vcpus": 4,
+		"memory": 8000,
+		"batch_file_name": "mfloans_launcher_0_1.zip",
+		"batch_file_type": "zip",
+		"spark_local_ip": "localhost",
+		"attemptDurationMin": 30,
+		"attempts": 2,
+		"DependencyCheckSql": [
+			""
+		],
+		"DependencyCheckResult": [
+			""
+		],
+		"maxIterations": "",
+		"on_hold": "false"
+	}
+}
